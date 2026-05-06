@@ -1,0 +1,353 @@
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>霓虹街机 — 主菜单</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        oklch(15% 0.02 280);
+      --surface:   oklch(18% 0.025 280);
+      --fg:        oklch(95% 0.03 320);
+      --muted:     oklch(70% 0.18 320);
+      --border:    oklch(65% 0.20 190);
+      --accent:    oklch(60% 0.25 290);
+      --pixel-size: 4px;
+      --glow-pink: oklch(60% 0.25 290);
+      --glow-cyan: oklch(65% 0.20 190);
+      --font-display: 'Press Start 2P', 'Noto Sans SC', monospace;
+      --font-body:    'VT323', 'Noto Sans SC', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      image-rendering: pixelated;
+      position: relative;
+      overflow: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 2px, transparent 2px, transparent 4px);
+      pointer-events: none;
+      z-index: 100;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: linear-gradient(var(--surface) 1px, transparent 1px), linear-gradient(90deg, var(--surface) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container {
+      width: 100%;
+      max-width: 900px;
+      padding: 48px;
+      background: var(--surface);
+      border: 8px solid var(--glow-cyan);
+      box-shadow: 0 0 0 4px var(--bg), 0 0 30px var(--glow-cyan), 0 0 60px var(--glow-cyan), inset 0 0 30px rgba(0, 255, 255, 0.1);
+      position: relative;
+      z-index: 1;
+      min-height: 500px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .container::before {
+      content: '';
+      position: absolute;
+      top: -8px; left: -8px; right: -8px; bottom: -8px;
+      border: 4px solid var(--glow-cyan);
+      pointer-events: none;
+      box-shadow: 0 0 20px var(--glow-cyan);
+    }
+    .menu-title {
+      font-family: var(--font-display);
+      font-size: 32px;
+      color: var(--fg);
+      text-shadow: 0 0 15px var(--glow-cyan);
+      margin-bottom: 48px;
+      text-align: center;
+    }
+    .menu-buttons {
+      display: flex;
+      gap: 32px;
+      width: 100%;
+      justify-content: center;
+    }
+    .menu-btn {
+      flex: 1;
+      max-width: 280px;
+      padding: 32px 24px;
+      font-family: var(--font-display);
+      font-size: 16px;
+      background: var(--bg);
+      color: var(--glow-cyan);
+      border: 4px solid var(--glow-cyan);
+      cursor: pointer;
+      letter-spacing: 2px;
+      box-shadow: 0 0 20px var(--glow-cyan), inset 0 0 20px rgba(0, 255, 255, 0.1);
+      transition: all 0.2s;
+      text-decoration: none;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .menu-btn-icon {
+      font-size: 48px;
+      filter: drop-shadow(0 0 10px var(--glow-cyan));
+    }
+    .menu-btn:hover {
+      background: var(--glow-cyan);
+      color: var(--bg);
+      box-shadow: 0 0 30px var(--glow-cyan), 0 0 60px var(--glow-cyan), inset 0 0 30px rgba(0, 255, 255, 0.3);
+      transform: translateY(-4px);
+    }
+    .menu-btn:active {
+      transform: translateY(-2px);
+    }
+    .cat-image {
+      width: 280px; height: 280px;
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      filter: drop-shadow(0 0 20px var(--glow-pink)) drop-shadow(0 0 40px var(--glow-cyan));
+      cursor: grab;
+      user-select: none;
+      transition: filter 0.2s;
+      z-index: 200;
+    }
+    .cat-image:active { cursor: grabbing; }
+    .cat-image.purring { animation: purr 0.1s infinite; }
+    .cat-image.happy { filter: drop-shadow(0 0 30px var(--glow-pink)) drop-shadow(0 0 50px var(--glow-cyan)) brightness(1.2); }
+    @keyframes purr {
+      0%, 100% { transform: translate(-1px, -1px); }
+      25% { transform: translate(1px, 1px); }
+      50% { transform: translate(-1px, 1px); }
+      75% { transform: translate(1px, -1px); }
+    }
+    .mosaic-flash {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 50;
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      grid-template-rows: repeat(15, 1fr);
+      gap: 3px;
+    }
+    .mosaic-cell { background: transparent; opacity: 0; }
+
+    /* 转场动画覆盖层 */
+    .page-transition {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 1000;
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      grid-template-rows: repeat(15, 1fr);
+      gap: 2px;
+      opacity: 1;
+    }
+    .page-transition-cell {
+      background: var(--glow-cyan);
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .page-transition-cell.fade {
+      opacity: 0;
+      transform: scale(1);
+    }
+
+    /* 页面加载淡入效果 */
+    .page-content {
+      opacity: 0;
+      transition: opacity 0.6s ease 0.4s;
+    }
+    .page-content.loaded {
+      opacity: 1;
+    }
+
+    @media (max-width: 900px) {
+      .container { padding: 32px 24px; margin: 20px; }
+      .cat-image { width: 180px; height: 180px; bottom: 10px; left: 10px; }
+      .menu-buttons { flex-direction: column; align-items: center; }
+      .menu-btn { max-width: 100%; }
+      .menu-title { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container page-content" id="page-content">
+    <h1 class="menu-title">霓虹街机</h1>
+    <div class="menu-buttons">
+      <a href="neon-arcade-dashboard-13.html" class="menu-btn" id="btn-diary" data-transition>
+        <span class="menu-btn-icon">📝</span>
+        <span>写入日记</span>
+      </a>
+      <a href="neon-arcade-multi-gallery.html" class="menu-btn" id="btn-memoir" data-transition>
+        <span class="menu-btn-icon">📖</span>
+        <span>回忆录</span>
+      </a>
+    </div>
+  </div>
+  <img src="4e21a342-192a-4c88-9394-0a5f0899d8f2-removebg-preview.png" alt="像素猫" class="cat-image" id="cat">
+  <div class="mosaic-flash" id="mosaic-overlay"></div>
+  <div class="page-transition" id="page-transition"></div>
+  <script>
+    const cat = document.getElementById('cat');
+    let isDragging = false, startX, startY;
+
+    cat.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      const catRect = cat.getBoundingClientRect();
+      startX = e.clientX - catRect.left;
+      startY = e.clientY - catRect.top;
+      cat.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const newX = e.clientX - startX;
+      const newY = e.clientY - startY;
+      cat.style.left = newX + 'px';
+      cat.style.top = newY + 'px';
+      cat.style.bottom = 'auto';
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      cat.style.cursor = 'grab';
+    });
+
+    cat.addEventListener('click', () => {
+      if (!isDragging) triggerPurr();
+    });
+
+    function triggerPurr() {
+      cat.classList.add('purring', 'happy');
+      let flashCount = 0;
+      const purrInterval = setInterval(() => {
+        triggerMosaicFlash('extreme');
+        flashCount++;
+        if (flashCount >= 15) {
+          clearInterval(purrInterval);
+          setTimeout(() => cat.classList.remove('purring', 'happy'), 100);
+        }
+      }, 100);
+    }
+
+    const mosaicOverlay = document.getElementById('mosaic-overlay'), mosaicCells = [];
+    function initMosaic() {
+      for (let i = 0; i < 300; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'mosaic-cell';
+        mosaicOverlay.appendChild(cell);
+        mosaicCells.push(cell);
+      }
+    }
+    function triggerMosaicFlash(intensity = 'low') {
+      const colors = ['rgba(255,0,179,0.9)','rgba(0,255,255,0.9)','rgba(255,0,102,0.85)','rgba(102,255,255,0.85)','rgba(255,102,178,0.8)'];
+      const count = intensity === 'extreme' 
+        ? Math.floor(Math.random() * 15) + 25
+        : Math.floor(Math.random() * (intensity === 'high' ? 18 : 5)) + (intensity === 'high' ? 10 : 2);
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const cell = mosaicCells[Math.floor(Math.random() * mosaicCells.length)];
+          cell.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          cell.style.opacity = '1';
+          cell.style.transition = `opacity ${Math.random() * 300 + 500}ms`;
+          setTimeout(() => { cell.style.opacity = '0'; }, 150);
+        }, i * Math.random() * 100);
+      }
+    }
+    function ambientFlash() {
+      triggerMosaicFlash('low');
+      setTimeout(ambientFlash, Math.random() * 300 + 200);
+    }
+    initMosaic();
+    setTimeout(ambientFlash, 500);
+
+    // 页面转场动画系统
+    const pageTransition = document.getElementById('page-transition');
+    const transitionCells = [];
+    const pageContent = document.getElementById('page-content');
+
+    // 初始化转场单元格
+    function initPageTransition() {
+      for (let i = 0; i < 300; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'page-transition-cell';
+        pageTransition.appendChild(cell);
+        transitionCells.push(cell);
+      }
+      // 页面加载时闪烁覆盖层逐渐消逝
+      setTimeout(() => {
+        transitionCells.forEach((cell, index) => {
+          const delay = (index % 20) * 15 + Math.floor(index / 20) * 20;
+          setTimeout(() => {
+            cell.classList.add('fade');
+          }, delay);
+        });
+        pageContent.classList.add('loaded');
+      }, 100);
+    }
+
+    // 转场动画函数
+    function navigateToPage(url) {
+      // 闪烁铺满屏幕
+      transitionCells.forEach((cell, index) => {
+        const delay = Math.floor(index / 20) * 30 + (index % 20) * 10;
+        setTimeout(() => {
+          cell.classList.remove('fade');
+        }, delay);
+      });
+
+      // 铺满后跳转
+      setTimeout(() => {
+        window.location.href = url;
+      }, 1200);
+    }
+
+    // 拦截所有带 data-transition 的链接
+    document.querySelectorAll('[data-transition]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const url = link.getAttribute('href');
+        navigateToPage(url);
+      });
+    });
+
+    initPageTransition();
+
+    // 按钮点击特效（已并入转场系统）
+    document.querySelectorAll('.menu-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const href = btn.getAttribute('href');
+        navigateToPage(href);
+      });
+    });
+  </script>
+</body>
+</html>

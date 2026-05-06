@@ -1,0 +1,378 @@
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>霓虹街机 — 完善资料</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        oklch(15% 0.02 280);
+      --surface:   oklch(18% 0.025 280);
+      --fg:        oklch(95% 0.03 320);
+      --muted:     oklch(70% 0.18 320);
+      --border:    oklch(65% 0.20 190);
+      --accent:    oklch(60% 0.25 290);
+      --pixel-size: 4px;
+      --glow-pink: oklch(60% 0.25 290);
+      --glow-cyan: oklch(65% 0.20 190);
+      --font-display: 'Press Start 2P', 'Noto Sans SC', monospace;
+      --font-body:    'VT323', 'Noto Sans SC', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      image-rendering: pixelated;
+      position: relative;
+      overflow: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 2px, transparent 2px, transparent 4px);
+      pointer-events: none;
+      z-index: 100;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: linear-gradient(var(--surface) 1px, transparent 1px), linear-gradient(90deg, var(--surface) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      padding: 48px;
+      background: var(--surface);
+      border: 4px solid var(--border);
+      box-shadow: 0 0 0 4px var(--bg), 0 0 20px var(--glow-pink), 0 0 40px var(--glow-cyan);
+      position: relative;
+      z-index: 1;
+    }
+    .cat-image {
+      width: 280px; height: 280px;
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      filter: drop-shadow(0 0 20px var(--glow-pink)) drop-shadow(0 0 40px var(--glow-cyan));
+      cursor: grab;
+      user-select: none;
+      transition: filter 0.2s;
+      z-index: 200;
+    }
+    .cat-image:active { cursor: grabbing; }
+    .cat-image.purring { animation: purr 0.1s infinite; }
+    .cat-image.happy { filter: drop-shadow(0 0 30px var(--glow-pink)) drop-shadow(0 0 50px var(--glow-cyan)) brightness(1.2); }
+    @keyframes purr {
+      0%, 100% { transform: translate(-1px, -1px); }
+      25% { transform: translate(1px, 1px); }
+      50% { transform: translate(-1px, 1px); }
+      75% { transform: translate(1px, -1px); }
+    }
+    .form-header { text-align: center; margin-bottom: 32px; }
+    .form-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      color: var(--fg);
+      text-shadow: 0 0 10px var(--glow-pink);
+      margin-bottom: 8px;
+    }
+    .form-subtitle {
+      font-family: var(--font-body);
+      font-size: 18px;
+      color: var(--muted);
+    }
+    .form-group { margin-bottom: 24px; }
+    .form-label {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      font-family: var(--font-body);
+      font-size: 18px;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      color: var(--fg);
+      outline: none;
+      transition: all 0.2s;
+    }
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--glow-pink), 0 0 20px var(--glow-cyan);
+    }
+    .form-input::placeholder { color: var(--muted); opacity: 0.6; }
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      background: var(--accent);
+      color: var(--fg);
+      border: 4px solid var(--border);
+      cursor: pointer;
+      letter-spacing: 2px;
+      box-shadow: inset -4px -4px 0 rgba(0,0,0,0.3), 0 0 10px var(--glow-pink);
+    }
+    .submit-btn:hover {
+      background: var(--glow-pink);
+      box-shadow: 0 0 20px var(--glow-pink), 0 0 40px var(--glow-cyan);
+    }
+    .form-footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 16px;
+      color: var(--muted);
+    }
+    .form-footer a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 2px solid var(--accent);
+    }
+    .mosaic-flash {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 50;
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      grid-template-rows: repeat(15, 1fr);
+      gap: 3px;
+    }
+    .mosaic-cell { background: transparent; opacity: 0; }
+
+    /* 转场动画覆盖层 */
+    .page-transition {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 1000;
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      grid-template-rows: repeat(15, 1fr);
+      gap: 2px;
+      opacity: 1;
+    }
+    .page-transition-cell {
+      background: var(--glow-cyan);
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .page-transition-cell.fade {
+      opacity: 0;
+      transform: scale(1);
+    }
+
+    /* 页面加载淡入效果 */
+    .page-content {
+      opacity: 0;
+      transition: opacity 0.6s ease 0.4s;
+    }
+    .page-content.loaded {
+      opacity: 1;
+    }
+
+    @media (max-width: 600px) {
+      .container { padding: 32px 24px; margin: 20px; }
+      .cat-image { width: 180px; height: 180px; bottom: 10px; left: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container page-content" id="page-content">
+    <div class="form-header">
+      <h2 class="form-title">完善资料</h2>
+      <p class="form-subtitle">告诉我们更多关于您的信息</p>
+    </div>
+    <form id="profile-form">
+      <div class="form-group">
+        <label class="form-label" for="profile-country">国家/地区</label>
+        <input type="text" id="profile-country" class="form-input" placeholder="例如：中国、美国、日本..." required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="profile-age">年龄段</label>
+        <input type="text" id="profile-age" class="form-input" placeholder="例如：25-30 岁、30 多岁..." required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="profile-occupation">职业身份</label>
+        <input type="text" id="profile-occupation" class="form-input" placeholder="例如：设计师、学生、工程师..." required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="profile-gender">性别</label>
+        <input type="text" id="profile-gender" class="form-input" placeholder="例如：男、女、其他..." required>
+      </div>
+      <button type="submit" class="submit-btn">完成资料</button>
+    </form>
+  </div>
+  <img src="4e21a342-192a-4c88-9394-0a5f0899d8f2-removebg-preview.png" alt="像素猫" class="cat-image" id="cat">
+  <div class="mosaic-flash" id="mosaic-overlay"></div>
+  <div class="page-transition" id="page-transition"></div>
+  <script>
+    const form = document.getElementById('profile-form'), cat = document.getElementById('cat');
+    let isDragging = false, startX, startY;
+
+    cat.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      const catRect = cat.getBoundingClientRect();
+      startX = e.clientX - catRect.left;
+      startY = e.clientY - catRect.top;
+      cat.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const newX = e.clientX - startX;
+      const newY = e.clientY - startY;
+      cat.style.left = newX + 'px';
+      cat.style.top = newY + 'px';
+      cat.style.bottom = 'auto';
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      cat.style.cursor = 'grab';
+    });
+
+    cat.addEventListener('click', () => {
+      if (!isDragging) triggerPurr();
+    });
+
+    function triggerPurr() {
+      cat.classList.add('purring', 'happy');
+      let flashCount = 0;
+      const purrInterval = setInterval(() => {
+        triggerMosaicFlash('extreme');
+        flashCount++;
+        if (flashCount >= 15) {
+          clearInterval(purrInterval);
+          setTimeout(() => cat.classList.remove('purring', 'happy'), 100);
+        }
+      }, 100);
+    }
+
+    const mosaicOverlay = document.getElementById('mosaic-overlay'), mosaicCells = [];
+    function initMosaic() {
+      for (let i = 0; i < 300; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'mosaic-cell';
+        mosaicOverlay.appendChild(cell);
+        mosaicCells.push(cell);
+      }
+    }
+    function triggerMosaicFlash(intensity = 'low') {
+      const colors = ['rgba(255,0,179,0.9)','rgba(0,255,255,0.9)','rgba(255,0,102,0.85)','rgba(102,255,255,0.85)','rgba(255,102,178,0.8)'];
+      const count = intensity === 'extreme' 
+        ? Math.floor(Math.random() * 15) + 25
+        : Math.floor(Math.random() * (intensity === 'high' ? 18 : 5)) + (intensity === 'high' ? 10 : 2);
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const cell = mosaicCells[Math.floor(Math.random() * mosaicCells.length)];
+          cell.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          cell.style.opacity = '1';
+          cell.style.transition = `opacity ${Math.random() * 300 + 500}ms`;
+          setTimeout(() => { cell.style.opacity = '0'; }, 150);
+        }, i * Math.random() * 100);
+      }
+    }
+    function ambientFlash() {
+      triggerMosaicFlash('low');
+      setTimeout(ambientFlash, Math.random() * 300 + 200);
+    }
+    initMosaic();
+    setTimeout(ambientFlash, 500);
+
+    // 页面转场动画系统
+    const pageTransition = document.getElementById('page-transition');
+    const transitionCells = [];
+    const pageContent = document.getElementById('page-content');
+
+    // 初始化转场单元格
+    function initPageTransition() {
+      for (let i = 0; i < 300; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'page-transition-cell';
+        pageTransition.appendChild(cell);
+        transitionCells.push(cell);
+      }
+      // 页面加载时闪烁覆盖层逐渐消逝
+      setTimeout(() => {
+        transitionCells.forEach((cell, index) => {
+          const delay = (index % 20) * 15 + Math.floor(index / 20) * 20;
+          setTimeout(() => {
+            cell.classList.add('fade');
+          }, delay);
+        });
+        pageContent.classList.add('loaded');
+      }, 100);
+    }
+
+    // 转场动画函数
+    function navigateToPage(url) {
+      // 闪烁铺满屏幕
+      transitionCells.forEach((cell, index) => {
+        const delay = Math.floor(index / 20) * 30 + (index % 20) * 10;
+        setTimeout(() => {
+          cell.classList.remove('fade');
+        }, delay);
+      });
+
+      // 铺满后跳转
+      setTimeout(() => {
+        window.location.href = url;
+      }, 1200);
+    }
+
+    initPageTransition();
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const country = document.getElementById('profile-country').value;
+      const age = document.getElementById('profile-age').value;
+      const occupation = document.getElementById('profile-occupation').value;
+      const gender = document.getElementById('profile-gender').value;
+
+      // 保存资料到后端
+      try {
+        await fetch('http://localhost:3000/api/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ country, age, occupation, gender })
+        });
+        // 将资料存储到 sessionStorage 供生图时使用
+        sessionStorage.setItem('userProfile', JSON.stringify({ country, age, occupation, gender }));
+      } catch (err) {
+        console.error('保存资料失败:', err);
+        // 即使保存失败也存储到 sessionStorage
+        sessionStorage.setItem('userProfile', JSON.stringify({ country, age, occupation, gender }));
+      }
+
+      triggerMosaicFlash('high');
+      cat.classList.add('happy');
+      setTimeout(() => cat.classList.remove('happy'), 2000);
+      navigateToPage('neon-arcade-menu.html');
+    });
+  </script>
+</body>
+</html>

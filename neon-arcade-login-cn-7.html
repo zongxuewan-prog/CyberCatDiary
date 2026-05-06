@@ -1,0 +1,619 @@
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>霓虹街机 — 登录</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        oklch(15% 0.02 280);
+      --surface:   oklch(18% 0.025 280);
+      --fg:        oklch(95% 0.03 320);
+      --muted:     oklch(70% 0.18 320);
+      --border:    oklch(65% 0.20 190);
+      --accent:    oklch(60% 0.25 290);
+      --accent-2:  oklch(65% 0.20 190);
+      --pixel-size: 4px;
+      --glow-pink: oklch(60% 0.25 290);
+      --glow-cyan: oklch(65% 0.20 190);
+      --font-display: 'Press Start 2P', 'Noto Sans SC', monospace;
+      --font-body:    'VT323', 'Noto Sans SC', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      position: relative;
+      overflow: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 2px, transparent 2px, transparent 4px);
+      pointer-events: none;
+      z-index: 100;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: linear-gradient(var(--surface) 1px, transparent 1px), linear-gradient(90deg, var(--surface) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container {
+      display: flex;
+      width: 100%;
+      max-width: 1200px;
+      min-height: 600px;
+      background: var(--surface);
+      border: 4px solid var(--border);
+      box-shadow: 0 0 0 4px var(--bg), 0 0 20px var(--glow-pink), 0 0 40px var(--glow-cyan);
+      position: relative;
+      z-index: 1;
+    }
+    .cat-panel {
+      flex: 1;
+      background: linear-gradient(135deg, var(--bg) 0%, var(--surface) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      border-right: 4px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .cat-panel::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle at 30% 30%, var(--glow-pink) 0%, transparent 50%);
+      opacity: 0.1;
+      animation: pulse 4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.1; transform: scale(1); }
+      50% { opacity: 0.2; transform: scale(1.1); }
+    }
+    .cat-image {
+      width: 280px; height: 280px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 20px var(--glow-pink)) drop-shadow(0 0 40px var(--glow-cyan));
+      animation: float 3s ease-in-out infinite;
+      position: relative;
+      z-index: 2;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .cat-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      margin-top: 32px;
+      text-align: center;
+      color: var(--accent);
+      text-shadow: 0 0 10px var(--glow-pink), 0 0 20px var(--glow-pink), 2px 2px 0 var(--border);
+      letter-spacing: 2px;
+      position: relative;
+      z-index: 2;
+      line-height: 1.8;
+    }
+    .pixel-decoration {
+      display: flex; gap: 8px;
+      margin-top: 24px;
+      position: relative;
+      z-index: 2;
+    }
+    .pixel {
+      width: var(--pixel-size); height: var(--pixel-size);
+      animation: blink 1s step-end infinite;
+    }
+    .pixel:nth-child(1) { background: var(--glow-pink); animation-delay: 0s; }
+    .pixel:nth-child(2) { background: var(--glow-cyan); animation-delay: 0.1s; }
+    .pixel:nth-child(3) { background: var(--accent); animation-delay: 0.2s; }
+    .pixel:nth-child(4) { background: var(--glow-pink); animation-delay: 0.3s; }
+    .pixel:nth-child(5) { background: var(--glow-cyan); animation-delay: 0.4s; }
+    .pixel:nth-child(6) { background: var(--accent); animation-delay: 0.5s; }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .form-panel {
+      flex: 1;
+      padding: 48px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .form-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .form-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      color: var(--fg);
+      text-shadow: 0 0 10px var(--glow-pink);
+      margin-bottom: 8px;
+      line-height: 1.8;
+    }
+    .form-subtitle {
+      font-family: var(--font-body);
+      font-size: 18px;
+      color: var(--muted);
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 32px;
+      border: 2px solid var(--border);
+      background: var(--bg);
+    }
+    .tab {
+      flex: 1;
+      padding: 12px 16px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      background: transparent;
+      color: var(--muted);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 1px;
+    }
+    .tab:hover {
+      color: var(--fg);
+      background: var(--surface);
+    }
+    .tab.active {
+      background: var(--accent);
+      color: var(--fg);
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-label {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      font-family: var(--font-body);
+      font-size: 18px;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      color: var(--fg);
+      outline: none;
+      transition: all 0.2s;
+    }
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--glow-pink), 0 0 20px var(--glow-cyan);
+    }
+    .form-input::placeholder {
+      color: var(--muted);
+      opacity: 0.6;
+    }
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      margin-top: 8px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      background: var(--accent);
+      color: var(--fg);
+      border: 4px solid var(--border);
+      cursor: pointer;
+      letter-spacing: 2px;
+      transition: all 0.2s;
+      box-shadow: inset -4px -4px 0 rgba(0,0,0,0.3), 0 0 10px var(--glow-pink);
+    }
+    .submit-btn:hover {
+      background: var(--glow-pink);
+      box-shadow: inset -4px -4px 0 rgba(0,0,0,0.3), 0 0 20px var(--glow-pink), 0 0 40px var(--glow-cyan);
+    }
+    .submit-btn:active {
+      transform: translate(2px, 2px);
+    }
+    .form-footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 16px;
+      color: var(--muted);
+    }
+    .form-footer a {
+      color: var(--accent-2);
+      text-decoration: none;
+      border-bottom: 2px solid var(--accent-2);
+    }
+    .form-footer a:hover {
+      color: var(--fg);
+      border-color: var(--fg);
+    }
+    .cursor {
+      display: inline-block;
+      width: 10px; height: 18px;
+      background: var(--accent);
+      animation: cursor-blink 1s step-end infinite;
+      vertical-align: middle;
+      margin-left: 4px;
+    }
+    @keyframes cursor-blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .form-content { display: none; }
+    .form-content.active {
+      display: block;
+      animation: fade-in 0.3s ease-out;
+    }
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .corner {
+      position: absolute;
+      width: 20px; height: 20px;
+      border: 4px solid var(--accent);
+    }
+    .corner-tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+    .corner-tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+    .corner-bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+    .corner-br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+    .mosaic-flash {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 50;
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      grid-template-rows: repeat(15, 1fr);
+      gap: 3px;
+    }
+    .mosaic-cell {
+      background: transparent;
+      opacity: 0;
+    }
+
+    /* 转场动画覆盖层 */
+    .page-transition {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 1000;
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      grid-template-rows: repeat(15, 1fr);
+      gap: 2px;
+      opacity: 1;
+    }
+    .page-transition-cell {
+      background: var(--glow-cyan);
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .page-transition-cell.fade {
+      opacity: 0;
+      transform: scale(1);
+    }
+
+    /* 页面加载淡入效果 */
+    .page-content {
+      opacity: 0;
+      transition: opacity 0.6s ease 0.4s;
+    }
+    .page-content.loaded {
+      opacity: 1;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        flex-direction: column;
+        margin: 20px;
+        max-width: 500px;
+      }
+      .cat-panel {
+        padding: 24px;
+        border-right: none;
+        border-bottom: 4px solid var(--border);
+      }
+      .cat-image { width: 180px; height: 180px; }
+      .cat-title { font-size: 14px; }
+      .form-panel { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container page-content" id="page-content">
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+    <div class="cat-panel">
+      <img src="4e21a342-192a-4c88-9394-0a5f0899d8f2-removebg-preview.png" alt="像素猫" class="cat-image" onerror="this.onerror=null; this.src='4e21a342-192a-4c88-9394-0a5f0899d8f2-removebg-preview.png';">
+      <h1 class="cat-title">欢迎加入<span class="cursor"></span></h1>
+      <div class="pixel-decoration">
+        <div class="pixel"></div>
+        <div class="pixel"></div>
+        <div class="pixel"></div>
+        <div class="pixel"></div>
+        <div class="pixel"></div>
+        <div class="pixel"></div>
+      </div>
+    </div>
+    <div class="form-panel">
+      <div class="form-header">
+        <h2 class="form-title">用户登录</h2>
+        <p class="form-subtitle">登入您的账户</p>
+      </div>
+      <div class="tabs">
+        <button class="tab" data-tab="login">登录</button>
+        <button class="tab" data-tab="register">注册</button>
+      </div>
+      <form class="form-content active" id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="login-username">用户名</label>
+          <input type="text" id="login-username" class="form-input" placeholder="输入用户名" autocomplete="username" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">密码</label>
+          <input type="password" id="login-password" class="form-input" placeholder="输入密码" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="submit-btn">立即登录</button>
+        <p class="form-footer">还没有账号？<a href="#" data-switch="register">注册账号</a></p>
+      </form>
+      <form class="form-content" id="register-form">
+        <div class="form-group">
+          <label class="form-label" for="register-username">用户名</label>
+          <input type="text" id="register-username" class="form-input" placeholder="设置用户名" autocomplete="username" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="register-email">邮箱</label>
+          <input type="email" id="register-email" class="form-input" placeholder="输入邮箱" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="register-password">密码</label>
+          <input type="password" id="register-password" class="form-input" placeholder="设置密码" autocomplete="new-password" required>
+        </div>
+        <button type="submit" class="submit-btn">注册账号</button>
+        <p class="form-footer">已有账号？<a href="#" data-switch="login">立即登录</a></p>
+      </form>
+    </div>
+  </div>
+  <div class="mosaic-flash" id="mosaic-overlay"></div>
+  <div class="page-transition" id="page-transition"></div>
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+    const tabs = document.querySelectorAll('.tab');
+    const forms = { login: document.getElementById('login-form'), register: document.getElementById('register-form') };
+    const submitBtns = {
+      login: forms.login.querySelector('.submit-btn'),
+      register: forms.register.querySelector('.submit-btn')
+    };
+
+    // 保存原始按钮文字
+    const originalText = {
+      login: submitBtns.login.textContent,
+      register: submitBtns.register.textContent
+    };
+
+    function setButtonLoading(formType, loading) {
+      const btn = submitBtns[formType];
+      if (loading) {
+        btn.textContent = formType === 'login' ? '登录中...' : '注册中...';
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+      } else {
+        btn.textContent = originalText[formType];
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.tab;
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        Object.keys(forms).forEach(key => { forms[key].classList.remove('active'); });
+        forms[target].classList.add('active');
+      });
+    });
+    document.querySelectorAll('[data-switch]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = link.dataset.switch;
+        tabs.forEach(t => { t.classList.toggle('active', t.dataset.tab === target); });
+        Object.keys(forms).forEach(key => { forms[key].classList.toggle('active', key === target); });
+      });
+    });
+
+    const mosaicOverlay = document.getElementById('mosaic-overlay');
+    const mosaicCells = [];
+
+    function initMosaic() {
+      for (let row = 0; row < 15; row++) {
+        for (let col = 0; col < 20; col++) {
+          const cell = document.createElement('div');
+          cell.className = 'mosaic-cell';
+          mosaicOverlay.appendChild(cell);
+          mosaicCells.push(cell);
+        }
+      }
+    }
+
+    function triggerMosaicFlash(intensity = 'low') {
+      const colors = [
+        'rgba(255, 0, 179, 0.9)',
+        'rgba(0, 255, 255, 0.9)',
+        'rgba(255, 0, 102, 0.85)',
+        'rgba(102, 255, 255, 0.85)',
+        'rgba(255, 102, 178, 0.8)'
+      ];
+
+      const minFlashes = intensity === 'high' ? 10 : 2;
+      const maxFlashes = intensity === 'high' ? 18 : 5;
+      const flashCount = Math.floor(Math.random() * (maxFlashes - minFlashes + 1)) + minFlashes;
+
+      for (let i = 0; i < flashCount; i++) {
+        setTimeout(() => {
+          const randomIndex = Math.floor(Math.random() * mosaicCells.length);
+          const cell = mosaicCells[randomIndex];
+          const randomColor = colors[Math.floor(Math.random() * colors.length)];
+          const duration = Math.random() * 300 + 500;
+
+          cell.style.backgroundColor = randomColor;
+          cell.style.opacity = '1';
+          cell.style.transition = `opacity ${duration}ms ease-out`;
+
+          setTimeout(() => {
+            cell.style.opacity = '0';
+          }, 150);
+        }, i * Math.random() * 100);
+      }
+    }
+
+    function ambientFlash() {
+      triggerMosaicFlash('low');
+      setTimeout(ambientFlash, Math.random() * 300 + 200);
+    }
+
+    initMosaic();
+    setTimeout(ambientFlash, 500);
+
+    // 页面转场动画系统
+    const pageTransition = document.getElementById('page-transition');
+    const transitionCells = [];
+    const pageContent = document.getElementById('page-content');
+
+    // 初始化转场单元格
+    function initPageTransition() {
+      for (let i = 0; i < 300; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'page-transition-cell';
+        pageTransition.appendChild(cell);
+        transitionCells.push(cell);
+      }
+      // 页面加载时闪烁覆盖层逐渐消逝
+      setTimeout(() => {
+        transitionCells.forEach((cell, index) => {
+          const delay = (index % 20) * 15 + Math.floor(index / 20) * 20;
+          setTimeout(() => {
+            cell.classList.add('fade');
+          }, delay);
+        });
+        pageContent.classList.add('loaded');
+      }, 100);
+    }
+
+    // 转场动画函数
+    function navigateToPage(url) {
+      transitionCells.forEach((cell, index) => {
+        const delay = Math.floor(index / 20) * 30 + (index % 20) * 10;
+        setTimeout(() => {
+          cell.classList.remove('fade');
+        }, delay);
+      });
+
+      setTimeout(() => {
+        window.location.href = url;
+      }, 1200);
+    }
+
+    initPageTransition();
+
+    // 登录表单提交
+    forms.login.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+
+      setButtonLoading('login', true);
+
+      try {
+        const response = await fetch(`${API_URL}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          triggerMosaicFlash('high');
+          setTimeout(() => {
+            navigateToPage('neon-arcade-profile-8.html');
+          }, 300);
+        } else {
+          setButtonLoading('login', false);
+          alert(`❌ 登录失败：${data.message}`);
+        }
+      } catch (error) {
+        setButtonLoading('login', false);
+        alert('❌ 网络错误，请确保服务器已启动');
+        console.error('登录错误:', error);
+      }
+    });
+
+    // 注册表单提交
+    forms.register.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('register-username').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+
+      setButtonLoading('register', true);
+
+      try {
+        const response = await fetch(`${API_URL}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ username, email, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          triggerMosaicFlash('high');
+          setTimeout(() => {
+            alert(`✅ 注册成功！欢迎加入，${username.toUpperCase()}!`);
+            navigateToPage('neon-arcade-profile-8.html');
+          }, 300);
+        } else {
+          setButtonLoading('register', false);
+          alert(`❌ 注册失败：${data.message}`);
+        }
+      } catch (error) {
+        setButtonLoading('register', false);
+        alert('❌ 网络错误，请确保服务器已启动');
+        console.error('注册错误:', error);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+nodejs
+buildCommand: npm install
+startCommand: node server.js

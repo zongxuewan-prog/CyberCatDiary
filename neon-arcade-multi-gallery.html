@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>霓虹街机 — 多排画廊</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        oklch(15% 0.02 280);
+      --surface:   oklch(18% 0.025 280);
+      --fg:        oklch(95% 0.03 320);
+      --muted:     oklch(70% 0.18 320);
+      --border:    oklch(65% 0.20 190);
+      --accent:    oklch(60% 0.25 290);
+      --pixel-size: 4px;
+      --glow-pink: oklch(60% 0.25 290);
+      --glow-cyan: oklch(65% 0.20 190);
+      --font-display: 'Press Start 2P', 'Noto Sans SC', monospace;
+      --font-body:    'VT323', 'Noto Sans SC', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      image-rendering: pixelated;
+      position: relative;
+      overflow-x: hidden;
+      padding-bottom: 320px;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 2px, transparent 2px, transparent 4px);
+      pointer-events: none;
+      z-index: 100;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: linear-gradient(var(--surface) 1px, transparent 1px), linear-gradient(90deg, var(--surface) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      padding: 48px;
+      background: var(--surface);
+      border: 8px solid var(--glow-cyan);
+      box-shadow: 0 0 0 4px var(--bg), 0 0 30px var(--glow-cyan), 0 0 60px var(--glow-cyan), inset 0 0 30px rgba(0, 255, 255, 0.1);
+      position: relative;
+      z-index: 1;
+      margin: 40px 20px;
+    }
+    .container::before {
+      content: '';
+      position: absolute;
+      top: -8px; left: -8px; right: -8px; bottom: -8px;
+      border: 4px solid var(--glow-cyan);
+      pointer-events: none;
+      box-shadow: 0 0 20px var(--glow-cyan);
+    }
+    .gallery-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      color: var(--fg);
+      text-shadow: 0 0 15px var(--glow-cyan);
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      padding: 20px;
+    }
+    .image-card {
+      background: var(--bg);
+      border: 4px solid var(--glow-cyan);
+      box-shadow: 0 0 15px var(--glow-cyan);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .image-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px var(--glow-cyan), 0 0 50px var(--glow-cyan);
+    }
+    .image-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      image-rendering: pixelated;
+      display: block;
+    }
+    .image-card .caption {
+      padding: 12px;
+      font-family: var(--font-display);
+      font-size: 10px;
+      color: var(--fg);
+      text-align: center;
+      text-shadow: 0 0 8px var(--glow-cyan);
+    }
+    .back-btn {
+      margin: 32px auto;
+      padding: 16px 48px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--glow-cyan);
+      border: 4px solid var(--glow-cyan);
+      cursor: pointer;
+      letter-spacing: 2px;
+      box-shadow: 0 0 15px var(--glow-cyan);
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+    .back-btn:hover {
+      background: var(--glow-cyan);
+      color: var(--bg);
+      box-shadow: 0 0 25px var(--glow-cyan), 0 0 50px var(--glow-cyan);
+    }
+    .cat-image {
+      width: 280px; height: 280px;
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      filter: drop-shadow(0 0 20px var(--glow-pink)) drop-shadow(0 0 40px var(--glow-cyan));
+      cursor: grab;
+      user-select: none;
+      transition: filter 0.2s;
+      z-index: 200;
+    }
+    .cat-image:active { cursor: grabbing; }
+    .cat-image.purring { animation: purr 0.1s infinite; }
+    .cat-image.happy { filter: drop-shadow(0 0 30px var(--glow-pink)) drop-shadow(0 0 50px var(--glow-cyan)) brightness(1.2); }
+    @keyframes purr {
+      0%, 100% { transform: translate(-1px, -1px); }
+      25% { transform: translate(1px, 1px); }
+      50% { transform: translate(-1px, 1px); }
+      75% { transform: translate(1px, -1px); }
+    }
+    .mosaic-flash {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 50;
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      grid-template-rows: repeat(15, 1fr);
+      gap: 3px;
+    }
+    .mosaic-cell { background: transparent; opacity: 0; }
+
+    /* 转场动画覆盖层 */
+    .page-transition {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 1000;
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      grid-template-rows: repeat(15, 1fr);
+      gap: 2px;
+      opacity: 1;
+    }
+    .page-transition-cell {
+      background: var(--glow-cyan);
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .page-transition-cell.fade {
+      opacity: 0;
+      transform: scale(1);
+    }
+
+    /* 页面加载淡入效果 */
+    .page-content {
+      opacity: 0;
+      transition: opacity 0.6s ease 0.4s;
+    }
+    .page-content.loaded {
+      opacity: 1;
+    }
+
+    @media (max-width: 900px) {
+      .container { padding: 32px 24px; margin: 20px 10px; }
+      .cat-image { width: 180px; height: 180px; bottom: 10px; left: 10px; }
+      .image-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+      .gallery-title { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container page-content" id="page-content">
+    <h1 class="gallery-title">多排画廊</h1>
+    <div class="image-grid" id="image-grid">
+      <!-- 图片将通过 JavaScript 动态生成 -->
+    </div>
+    <a href="neon-arcade-menu.html" class="back-btn" data-transition>返回</a>
+  </div>
+  <img src="4e21a342-192a-4c88-9394-0a5f0899d8f2-removebg-preview.png" alt="像素猫" class="cat-image" id="cat">
+  <div class="mosaic-flash" id="mosaic-overlay"></div>
+  <div class="page-transition" id="page-transition"></div>
+  <script>
+    // 从后端加载用户生成的图片
+    const imageGrid = document.getElementById('image-grid');
+    const galleryTitle = document.querySelector('.gallery-title');
+
+    function loadImages() {
+      fetch('http://localhost:3000/api/images', {
+        credentials: 'include'
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.images.length > 0) {
+          galleryTitle.textContent = `🎨 回忆录 (${data.images.length} 张图片)`;
+          renderImages(data.images);
+        } else {
+          galleryTitle.textContent = '🎨 回忆录';
+          imageGrid.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 60px; font-family: var(--font-body); font-size: 20px; color: var(--muted);">
+              <p>暂无回忆图片</p>
+              <p style="margin-top: 12px; font-size: 16px;">去"写入日记"生成你的第一张回忆图片吧！</p>
+            </div>
+          `;
+        }
+      })
+      .catch(err => {
+        console.error('加载图片失败:', err);
+        galleryTitle.textContent = '🎨 回忆录';
+        imageGrid.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 60px; font-family: var(--font-body); font-size: 20px; color: var(--muted);">
+            <p>加载失败，请重试</p>
+          </div>
+        `;
+      });
+    }
+
+    function renderImages(images) {
+      imageGrid.innerHTML = '';
+      images.forEach((img, index) => {
+        const card = document.createElement('div');
+        card.className = 'image-card';
+        card.innerHTML = `
+          <img src="${img.image_url}" alt="生成的图片" onclick="viewImage('${img.image_url}', '${img.prompt.replace(/'/g, "\\'")}')">
+          <div class="caption">${img.prompt || '无题'}</div>
+        `;
+        imageGrid.appendChild(card);
+      });
+    }
+
+    function viewImage(url, prompt) {
+      sessionStorage.setItem('generatedImageUrl', url);
+      sessionStorage.setItem('generatedImagePrompt', prompt);
+      window.location.href = 'neon-arcade-gallery.html';
+    }
+
+    // 页面加载时获取图片
+    loadImages();
+
+    // 像素猫拖动和互动
+    const cat = document.getElementById('cat');
+    let isDragging = false, startX, startY;
+
+    cat.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      const catRect = cat.getBoundingClientRect();
+      startX = e.clientX - catRect.left;
+      startY = e.clientY - catRect.top;
+      cat.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const newX = e.clientX - startX;
+      const newY = e.clientY - startY;
+      cat.style.left = newX + 'px';
+      cat.style.top = newY + 'px';
+      cat.style.bottom = 'auto';
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      cat.style.cursor = 'grab';
+    });
+
+    cat.addEventListener('click', () => {
+      if (!isDragging) triggerPurr();
+    });
+
+    function triggerPurr() {
+      cat.classList.add('purring', 'happy');
+      let flashCount = 0;
+      const purrInterval = setInterval(() => {
+        triggerMosaicFlash('extreme');
+        flashCount++;
+        if (flashCount >= 15) {
+          clearInterval(purrInterval);
+          setTimeout(() => cat.classList.remove('purring', 'happy'), 100);
+        }
+      }, 100);
+    }
+
+    // 马赛克闪烁效果
+    const mosaicOverlay = document.getElementById('mosaic-overlay'), mosaicCells = [];
+    function initMosaic() {
+      for (let i = 0; i < 300; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'mosaic-cell';
+        mosaicOverlay.appendChild(cell);
+        mosaicCells.push(cell);
+      }
+    }
+    function triggerMosaicFlash(intensity = 'low') {
+      const colors = ['rgba(255,0,179,0.9)','rgba(0,255,255,0.9)','rgba(255,0,102,0.85)','rgba(102,255,255,0.85)','rgba(255,102,178,0.8)'];
+      const count = intensity === 'extreme'
+        ? Math.floor(Math.random() * 15) + 25
+        : Math.floor(Math.random() * (intensity === 'high' ? 18 : 5)) + (intensity === 'high' ? 10 : 2);
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const cell = mosaicCells[Math.floor(Math.random() * mosaicCells.length)];
+          cell.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          cell.style.opacity = '1';
+          cell.style.transition = `opacity ${Math.random() * 300 + 500}ms`;
+          setTimeout(() => { cell.style.opacity = '0'; }, 150);
+        }, i * Math.random() * 100);
+      }
+    }
+    function ambientFlash() {
+      triggerMosaicFlash('low');
+      setTimeout(ambientFlash, Math.random() * 300 + 200);
+    }
+    initMosaic();
+    setTimeout(ambientFlash, 500);
+
+    // 页面转场动画系统
+    const pageTransition = document.getElementById('page-transition');
+    const transitionCells = [];
+    const pageContent = document.getElementById('page-content');
+
+    // 初始化转场单元格
+    function initPageTransition() {
+      for (let i = 0; i < 300; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'page-transition-cell';
+        pageTransition.appendChild(cell);
+        transitionCells.push(cell);
+      }
+      // 页面加载时闪烁覆盖层逐渐消逝
+      setTimeout(() => {
+        transitionCells.forEach((cell, index) => {
+          const delay = (index % 20) * 15 + Math.floor(index / 20) * 20;
+          setTimeout(() => {
+            cell.classList.add('fade');
+          }, delay);
+        });
+        pageContent.classList.add('loaded');
+      }, 100);
+    }
+
+    // 转场动画函数
+    function navigateToPage(url) {
+      // 闪烁铺满屏幕
+      transitionCells.forEach((cell, index) => {
+        const delay = Math.floor(index / 20) * 30 + (index % 20) * 10;
+        setTimeout(() => {
+          cell.classList.remove('fade');
+        }, delay);
+      });
+
+      // 铺满后跳转
+      setTimeout(() => {
+        window.location.href = url;
+      }, 1200);
+    }
+
+    // 拦截所有带 data-transition 的链接
+    document.querySelectorAll('[data-transition]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const url = link.getAttribute('href');
+        navigateToPage(url);
+      });
+    });
+
+    initPageTransition();
+
+    // 返回按钮由 data-transition 属性统一处理
+  </script>
+</body>
+</html>

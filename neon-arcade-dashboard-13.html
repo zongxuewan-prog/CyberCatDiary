@@ -1,0 +1,570 @@
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>霓虹街机 — 输入界面</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        oklch(15% 0.02 280);
+      --surface:   oklch(18% 0.025 280);
+      --fg:        oklch(95% 0.03 320);
+      --muted:     oklch(70% 0.18 320);
+      --border:    oklch(65% 0.20 190);
+      --accent:    oklch(60% 0.25 290);
+      --pixel-size: 4px;
+      --glow-pink: oklch(60% 0.25 290);
+      --glow-cyan: oklch(65% 0.20 190);
+      --font-display: 'Press Start 2P', 'Noto Sans SC', monospace;
+      --font-body:    'VT323', 'Noto Sans SC', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      image-rendering: pixelated;
+      position: relative;
+      overflow: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 2px, transparent 2px, transparent 4px);
+      pointer-events: none;
+      z-index: 100;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: linear-gradient(var(--surface) 1px, transparent 1px), linear-gradient(90deg, var(--surface) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container {
+      width: 100%;
+      max-width: 900px;
+      padding: 48px;
+      background: var(--surface);
+      border: 8px solid var(--glow-cyan);
+      box-shadow: 0 0 0 4px var(--bg), 0 0 30px var(--glow-cyan), 0 0 60px var(--glow-cyan), inset 0 0 30px rgba(0, 255, 255, 0.1);
+      position: relative;
+      z-index: 1;
+      min-height: 500px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .container-inner {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .center-placeholder {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--muted);
+      text-align: center;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      text-shadow: 0 0 10px var(--glow-cyan);
+      padding: 20px;
+    }
+    .center-placeholder.hidden { opacity: 0; }
+    .text-effect-container {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 42px;
+      text-align: center;
+      pointer-events: none;
+      padding: 20px;
+      flex-wrap: wrap;
+      word-break: break-word;
+      line-height: 1.4;
+      max-height: calc(100% - 100px);
+      overflow: hidden;
+    }
+    .text-limit-hint {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--glow-pink);
+      text-shadow: 0 0 10px var(--glow-pink);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .text-limit-hint.visible { opacity: 1; }
+    .effect-neon {
+      animation: neon-flicker 0.1s infinite;
+      color: var(--glow-cyan);
+      text-shadow: 0 0 20px var(--glow-cyan), 0 0 40px var(--glow-cyan);
+    }
+    @keyframes neon-flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+    .effect-pixel {
+      animation: pixel-scramble 0.5s infinite;
+    }
+    @keyframes pixel-scramble {
+      0% { transform: translateX(0); filter: hue-rotate(0deg); }
+      25% { transform: translateX(-5px); filter: hue-rotate(90deg); }
+      50% { transform: translateX(5px); filter: hue-rotate(180deg); }
+      75% { transform: translateX(-5px); filter: hue-rotate(270deg); }
+      100% { transform: translateX(0); filter: hue-rotate(360deg); }
+    }
+    .effect-pulse {
+      animation: pulse-grow 1s ease-in-out;
+      color: var(--fg);
+      text-shadow: 0 0 30px var(--glow-pink);
+    }
+    @keyframes pulse-grow {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .effect-rainbow {
+      background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: rainbow-move 2s linear infinite;
+      background-size: 200% auto;
+    }
+    @keyframes rainbow-move {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+    .effect-glitch {
+      animation: glitch-skew 0.3s infinite;
+      color: var(--fg);
+      text-shadow: 2px 0 var(--glow-pink), -2px 0 var(--glow-cyan);
+    }
+    @keyframes glitch-skew {
+      0% { transform: skew(0deg); }
+      20% { transform: skew(-5deg); }
+      40% { transform: skew(5deg); }
+      60% { transform: skew(-3deg); }
+      80% { transform: skew(3deg); }
+      100% { transform: skew(0deg); }
+    }
+    .input-section {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+    }
+    .glow-input {
+      flex: 1;
+      padding: 20px 24px;
+      font-family: var(--font-body);
+      font-size: 18px;
+      background: var(--bg);
+      border: 4px solid var(--glow-cyan);
+      color: var(--fg);
+      outline: none;
+      box-shadow: 0 0 15px var(--glow-cyan);
+      transition: all 0.2s;
+    }
+    .glow-input:focus {
+      box-shadow: 0 0 25px var(--glow-cyan), 0 0 50px var(--glow-cyan);
+    }
+    .glow-input::placeholder {
+      color: var(--muted);
+      opacity: 0.6;
+    }
+    .input-btn {
+      padding: 20px 32px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      background: var(--glow-cyan);
+      color: var(--bg);
+      border: 4px solid var(--fg);
+      cursor: pointer;
+      letter-spacing: 2px;
+      box-shadow: 0 0 20px var(--glow-cyan);
+      transition: all 0.2s;
+    }
+    .input-btn:hover {
+      background: var(--fg);
+      color: var(--bg);
+      box-shadow: 0 0 30px var(--glow-cyan), 0 0 50px var(--glow-cyan);
+    }
+    .cat-image {
+      width: 280px; height: 280px;
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      filter: drop-shadow(0 0 20px var(--glow-pink)) drop-shadow(0 0 40px var(--glow-cyan));
+      cursor: grab;
+      user-select: none;
+      transition: filter 0.2s;
+      z-index: 200;
+    }
+    .cat-image:active { cursor: grabbing; }
+    .cat-image.purring { animation: purr 0.1s infinite; }
+    .cat-image.happy { filter: drop-shadow(0 0 30px var(--glow-pink)) drop-shadow(0 0 50px var(--glow-cyan)) brightness(1.2); }
+    @keyframes purr {
+      0%, 100% { transform: translate(-1px, -1px); }
+      25% { transform: translate(1px, 1px); }
+      50% { transform: translate(-1px, 1px); }
+      75% { transform: translate(1px, -1px); }
+    }
+
+    /* 生成中模态框 */
+    .loading-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 1000;
+      gap: 24px;
+    }
+    .loading-modal.active {
+      display: flex;
+    }
+    .loading-spinner {
+      width: 80px;
+      height: 80px;
+      border: 8px solid var(--surface);
+      border-top-color: var(--glow-cyan);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      box-shadow: 0 0 30px var(--glow-cyan);
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-text {
+      font-family: var(--font-display);
+      font-size: 16px;
+      color: var(--glow-cyan);
+      text-shadow: 0 0 15px var(--glow-cyan);
+      animation: loading-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes loading-pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+    .mosaic-flash {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 50;
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      grid-template-rows: repeat(15, 1fr);
+      gap: 3px;
+    }
+    .mosaic-cell { background: transparent; opacity: 0; }
+
+    /* 转场动画覆盖层 */
+    .page-transition {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 1000;
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      grid-template-rows: repeat(15, 1fr);
+      gap: 2px;
+      opacity: 1;
+    }
+    .page-transition-cell {
+      background: var(--glow-cyan);
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .page-transition-cell.fade {
+      opacity: 0;
+      transform: scale(1);
+    }
+
+    /* 页面加载淡入效果 */
+    .page-content {
+      opacity: 0;
+      transition: opacity 0.6s ease 0.4s;
+    }
+    .page-content.loaded {
+      opacity: 1;
+    }
+
+    @media (max-width: 900px) {
+      .container { padding: 32px 24px; margin: 20px; }
+      .cat-image { width: 180px; height: 180px; bottom: 10px; left: 10px; }
+      .input-section { flex-direction: column; }
+      .input-btn { width: 100%; }
+      .text-effect-container { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container page-content" id="page-content">
+    <div class="container-inner">
+      <div class="center-placeholder" id="center-placeholder">请输入你今天的琐事</div>
+      <div class="text-effect-container" id="text-effect-container"></div>
+      <div class="text-limit-hint" id="text-limit-hint">已到输入上限</div>
+      <div style="flex: 1; display: flex; align-items: flex-end;">
+        <div class="input-section">
+          <input type="text" class="glow-input" placeholder="输入指令..." id="command-input">
+          <button class="input-btn" id="submit-btn">确认</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <img src="4e21a342-192a-4c88-9394-0a5f0899d8f2-removebg-preview.png" alt="像素猫" class="cat-image" id="cat">
+  <div class="mosaic-flash" id="mosaic-overlay"></div>
+  <div class="page-transition" id="page-transition"></div>
+
+  <!-- 生成中模态框 -->
+  <div class="loading-modal" id="loading-modal">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">🎨 正在生成图片...</div>
+  </div>
+  <script>
+    const cat = document.getElementById('cat');
+    let isDragging = false, startX, startY;
+
+    cat.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      const catRect = cat.getBoundingClientRect();
+      startX = e.clientX - catRect.left;
+      startY = e.clientY - catRect.top;
+      cat.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const newX = e.clientX - startX;
+      const newY = e.clientY - startY;
+      cat.style.left = newX + 'px';
+      cat.style.top = newY + 'px';
+      cat.style.bottom = 'auto';
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      cat.style.cursor = 'grab';
+    });
+
+    cat.addEventListener('click', () => {
+      if (!isDragging) triggerPurr();
+    });
+
+    function triggerPurr() {
+      cat.classList.add('purring', 'happy');
+      let flashCount = 0;
+      const purrInterval = setInterval(() => {
+        triggerMosaicFlash('extreme');
+        flashCount++;
+        if (flashCount >= 15) {
+          clearInterval(purrInterval);
+          setTimeout(() => cat.classList.remove('purring', 'happy'), 100);
+        }
+      }, 100);
+    }
+
+    const mosaicOverlay = document.getElementById('mosaic-overlay'), mosaicCells = [];
+    function initMosaic() {
+      for (let i = 0; i < 300; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'mosaic-cell';
+        mosaicOverlay.appendChild(cell);
+        mosaicCells.push(cell);
+      }
+    }
+    function triggerMosaicFlash(intensity = 'low') {
+      const colors = ['rgba(255,0,179,0.9)','rgba(0,255,255,0.9)','rgba(255,0,102,0.85)','rgba(102,255,255,0.85)','rgba(255,102,178,0.8)'];
+      const count = intensity === 'extreme' 
+        ? Math.floor(Math.random() * 15) + 25
+        : Math.floor(Math.random() * (intensity === 'high' ? 18 : 5)) + (intensity === 'high' ? 10 : 2);
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const cell = mosaicCells[Math.floor(Math.random() * mosaicCells.length)];
+          cell.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          cell.style.opacity = '1';
+          cell.style.transition = `opacity ${Math.random() * 300 + 500}ms`;
+          setTimeout(() => { cell.style.opacity = '0'; }, 150);
+        }, i * Math.random() * 100);
+      }
+    }
+    function ambientFlash() {
+      triggerMosaicFlash('low');
+      setTimeout(ambientFlash, Math.random() * 300 + 200);
+    }
+    initMosaic();
+    setTimeout(ambientFlash, 500);
+
+    // 页面转场动画系统
+    const pageTransition = document.getElementById('page-transition');
+    const transitionCells = [];
+    const pageContent = document.getElementById('page-content');
+
+    // 初始化转场单元格
+    function initPageTransition() {
+      for (let i = 0; i < 300; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'page-transition-cell';
+        pageTransition.appendChild(cell);
+        transitionCells.push(cell);
+      }
+      // 页面加载时闪烁覆盖层逐渐消逝
+      setTimeout(() => {
+        transitionCells.forEach((cell, index) => {
+          const delay = (index % 20) * 15 + Math.floor(index / 20) * 20;
+          setTimeout(() => {
+            cell.classList.add('fade');
+          }, delay);
+        });
+        pageContent.classList.add('loaded');
+      }, 100);
+    }
+
+    // 转场动画函数
+    function navigateToPage(url) {
+      // 闪烁铺满屏幕
+      transitionCells.forEach((cell, index) => {
+        const delay = Math.floor(index / 20) * 30 + (index % 20) * 10;
+        setTimeout(() => {
+          cell.classList.remove('fade');
+        }, delay);
+      });
+
+      // 铺满后跳转
+      setTimeout(() => {
+        window.location.href = url;
+      }, 1200);
+    }
+
+    initPageTransition();
+
+    const placeholder = document.getElementById('center-placeholder');
+    const effectContainer = document.getElementById('text-effect-container');
+    const limitHint = document.getElementById('text-limit-hint');
+    const input = document.getElementById('command-input');
+    let isAtLimit = false;
+
+    input.addEventListener('input', () => {
+      const value = input.value.trim();
+      if (value) {
+        placeholder.classList.add('hidden');
+        effectContainer.textContent = value;
+        effectContainer.className = 'text-effect-container effect-glitch';
+        
+        const containerRect = effectContainer.getBoundingClientRect();
+        const inputSection = document.querySelector('.input-section');
+        const inputRect = inputSection.getBoundingClientRect();
+        const gap = inputRect.top - (containerRect.top + containerRect.height);
+        
+        if (gap < 60) {
+          limitHint.classList.add('visible');
+          isAtLimit = true;
+        } else {
+          limitHint.classList.remove('visible');
+          isAtLimit = false;
+        }
+      } else {
+        placeholder.classList.remove('hidden');
+        effectContainer.textContent = '';
+        effectContainer.className = 'text-effect-container';
+        limitHint.classList.remove('visible');
+        isAtLimit = false;
+      }
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (isAtLimit && e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+      }
+    });
+
+    document.getElementById('submit-btn').addEventListener('click', async () => {
+      const value = input.value.trim();
+      if (value) {
+        triggerMosaicFlash('high');
+        cat.classList.add('happy');
+        setTimeout(() => cat.classList.remove('happy'), 2000);
+
+        // 获取用户资料
+        const userProfile = JSON.parse(sessionStorage.getItem('userProfile') || '{}');
+
+        // 显示加载模态框
+        const loadingModal = document.getElementById('loading-modal');
+        loadingModal.classList.add('active');
+
+        // 调用后端 API 生成图片，带上用户资料
+        try {
+          const response = await fetch('http://localhost:3000/api/generate-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prompt: value,
+              userProfile: userProfile
+            })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            // 保存图片 URL 到 sessionStorage 并跳转到画廊
+            sessionStorage.setItem('generatedImageUrl', result.imageUrl);
+            sessionStorage.setItem('generatedImagePrompt', value);
+            input.value = '';
+            placeholder.classList.remove('hidden');
+            effectContainer.textContent = '';
+            effectContainer.className = 'text-effect-container';
+            // 关闭模态框后跳转
+            setTimeout(() => {
+              loadingModal.classList.remove('active');
+              navigateToPage('neon-arcade-gallery.html');
+            }, 500);
+          } else {
+            loadingModal.classList.remove('active');
+            alert('❌ 生成失败：' + (result.message || '未知错误'));
+          }
+        } catch (error) {
+          loadingModal.classList.remove('active');
+          alert('❌ 网络错误：' + error.message);
+          console.error('生成错误:', error);
+        }
+      }
+    });
+
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('submit-btn').click();
+      }
+    });
+  </script>
+</body>
+</html>
